@@ -30,7 +30,7 @@ public class ConsoleUI {
         while (true) {
             printMenu();
             String choice = scanner.nextLine().trim();
-            if ("6".equals(choice)) {
+            if ("7".equals(choice)) {
                 break;
             }
             handleChoice(choice);
@@ -43,8 +43,9 @@ public class ConsoleUI {
         System.out.println("2. Убрать товар со склада");
         System.out.println("3. Показать все товары");
         System.out.println("4. Статистика по категориям");
-        System.out.println("5. Отменить последнюю операцию");
-        System.out.println("6. Выход");
+        System.out.println("5. Проверить склад (audit)");
+        System.out.println("6. Отменить последнюю операцию");
+        System.out.println("7. Выход");
         System.out.print("Выбор: ");
     }
 
@@ -54,7 +55,8 @@ public class ConsoleUI {
             case "2" -> handleRemoveProduct();
             case "3" -> handleShowProducts();
             case "4" -> handleShowStatistics();
-            case "5" -> handleUndoLast();
+            case "5" -> handleAudit();
+            case "6" -> handleUndoLast();
             default -> System.out.println("Неверный выбор");
         }
     }
@@ -132,6 +134,10 @@ public class ConsoleUI {
         } catch (WarehouseException e) {
             System.out.println("Ошибка: " + e.getMessage());
         }
+    }
+
+    private void handleAudit() {
+        new WarehouseAuditGodClass(repository).runAuditAndPrintReport();
     }
 
     private void handleShowProducts() {
