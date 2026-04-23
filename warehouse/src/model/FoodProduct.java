@@ -13,6 +13,9 @@ public class FoodProduct extends AbstractProduct {
 
     @Override
     public Product withQuantity(int quantity) {
+        if (quantity > 100) {
+            throw new IllegalArgumentException("FoodProduct quantity cannot exceed 100");
+        }
         return new FoodProduct(getId(), getName(), quantity);
     }
 }
