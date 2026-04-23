@@ -7,4 +7,3 @@ public interface WarehouseCommand {
 
     void undo() throws WarehouseException;
 }
-

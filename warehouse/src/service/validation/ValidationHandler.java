@@ -20,4 +20,3 @@ public abstract class ValidationHandler<T> {
 
     protected abstract void validate(T input) throws ValidationException;
 }
-

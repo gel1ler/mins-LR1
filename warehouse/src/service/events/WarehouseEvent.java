@@ -1,5 +1,3 @@
 package service.events;
 
-public sealed interface WarehouseEvent permits ProductAddedEvent, ProductRemovedEvent {
-}
-
+public interface WarehouseEvent {}

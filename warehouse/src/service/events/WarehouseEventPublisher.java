@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WarehouseEventPublisher {
-
     private final List<WarehouseEventListener> listeners = new ArrayList<>();
 
     public void register(WarehouseEventListener listener) {

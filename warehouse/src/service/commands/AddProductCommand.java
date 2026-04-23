@@ -6,7 +6,6 @@ import repository.CellRepository;
 import service.WarehouseService;
 
 public class AddProductCommand implements WarehouseCommand {
-
     private final WarehouseService warehouseService;
     private final CellRepository repository;
     private final Product productToAdd;
@@ -15,7 +14,8 @@ public class AddProductCommand implements WarehouseCommand {
     private Integer previousPosition;
     private Product previousProduct;
 
-    public AddProductCommand(WarehouseService warehouseService, CellRepository repository, Product productToAdd, int requestedPosition) {
+    public AddProductCommand(WarehouseService warehouseService, CellRepository repository, Product productToAdd,
+            int requestedPosition) {
         this.warehouseService = warehouseService;
         this.repository = repository;
         this.productToAdd = productToAdd;
@@ -25,7 +25,8 @@ public class AddProductCommand implements WarehouseCommand {
     @Override
     public void execute() throws WarehouseException {
         previousProduct = warehouseService.findById(productToAdd.getId());
-        previousPosition = previousProduct == null ? null : warehouseService.getPositionByProductId(productToAdd.getId());
+        previousPosition = previousProduct == null ? null
+                : warehouseService.getPositionByProductId(productToAdd.getId());
         warehouseService.addProduct(productToAdd, requestedPosition);
     }
 
@@ -39,4 +40,3 @@ public class AddProductCommand implements WarehouseCommand {
         repository.save(position, previousProduct);
     }
 }
-
