@@ -1,11 +1,12 @@
-import model.ChemicalProduct;
-import model.ElectronicsProduct;
-import model.FoodProduct;
 import repository.CellRepository;
 import repository.InMemoryCellRepository;
+import repository.RepositorySeed;
 import service.DefaultNeighborhoodValidator;
 import service.NeighborhoodValidator;
 import service.WarehouseService;
+import service.commands.CommandExecutor;
+import service.events.WarehouseEventPublisher;
+import ui.ConsoleWarehouseListener;
 import ui.ConsoleUI;
 
 //Подлкючить гит, в новой ветке сделать задание
@@ -13,20 +14,16 @@ import ui.ConsoleUI;
 public class Main {
     public static void main(String[] args) {
         CellRepository repository = new InMemoryCellRepository();
-        loadSeedData(repository);
+        RepositorySeed.loadSeedData(repository);
         NeighborhoodValidator validator = new DefaultNeighborhoodValidator();
-        WarehouseService warehouseService = new WarehouseService(repository, validator);
-        ConsoleUI ui = new ConsoleUI(warehouseService);
+        WarehouseEventPublisher eventPublisher = new WarehouseEventPublisher();
+        eventPublisher.register(new ConsoleWarehouseListener());
+
+        WarehouseService warehouseService = new WarehouseService(repository, validator, eventPublisher);
+        CommandExecutor commandExecutor = new CommandExecutor();
+        ConsoleUI ui = new ConsoleUI(warehouseService, repository, commandExecutor);
 
         System.out.println("Добро пожаловать в склад");
         ui.run();
-    }
-
-    // Вынести в репозиторий
-    private static void loadSeedData(CellRepository repository) {
-        repository.save(1, new FoodProduct("f1", "Молоко", 50));
-        repository.save(2, new FoodProduct("f2", "Хлеб", 100));
-        repository.save(10, new ElectronicsProduct("e1", "Телефон", 25));
-        repository.save(20, new ChemicalProduct("c1", "Стиральный порошок", 30));
     }
 }
