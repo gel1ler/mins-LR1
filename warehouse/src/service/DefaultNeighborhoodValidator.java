@@ -13,6 +13,9 @@ public class DefaultNeighborhoodValidator implements NeighborhoodValidator {
 
     @Override
     public boolean canStoreTogether(Product product1, Product product2) {
+        if (product1.getCategory() == product2.getCategory()) {
+            return true;
+        }
         Set<ProductCategory> pair = Set.of(product1.getCategory(), product2.getCategory());
         return !INCOMPATIBLE_PAIRS.contains(pair);
     }

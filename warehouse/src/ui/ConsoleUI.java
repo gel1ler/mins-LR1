@@ -1,12 +1,14 @@
 package ui;
 
-import exception.InsufficientQuantityException;
-import exception.ProductNotFoundException;
 import exception.WarehouseException;
 import model.Product;
 import model.ProductCategory;
 import model.StorageCell;
+import repository.CellRepository;
 import service.WarehouseService;
+import service.commands.AddProductCommand;
+import service.commands.CommandExecutor;
+import service.commands.RemoveProductCommand;
 
 import java.util.List;
 import java.util.Map;
@@ -14,17 +16,21 @@ import java.util.Scanner;
 
 public class ConsoleUI {
     private final WarehouseService warehouseService;
+    private final CellRepository repository;
+    private final CommandExecutor commandExecutor;
     private final Scanner scanner = new Scanner(System.in);
 
-    public ConsoleUI(WarehouseService warehouseService) {
+    public ConsoleUI(WarehouseService warehouseService, CellRepository repository, CommandExecutor commandExecutor) {
         this.warehouseService = warehouseService;
+        this.repository = repository;
+        this.commandExecutor = commandExecutor;
     }
 
     public void run() {
         while (true) {
             printMenu();
             String choice = scanner.nextLine().trim();
-            if ("5".equals(choice)) {
+            if ("6".equals(choice)) {
                 break;
             }
             handleChoice(choice);
@@ -37,7 +43,8 @@ public class ConsoleUI {
         System.out.println("2. Убрать товар со склада");
         System.out.println("3. Показать все товары");
         System.out.println("4. Статистика по категориям");
-        System.out.println("5. Выход");
+        System.out.println("5. Отменить последнюю операцию");
+        System.out.println("6. Выход");
         System.out.print("Выбор: ");
     }
 
@@ -47,6 +54,7 @@ public class ConsoleUI {
             case "2" -> handleRemoveProduct();
             case "3" -> handleShowProducts();
             case "4" -> handleShowStatistics();
+            case "5" -> handleUndoLast();
             default -> System.out.println("Неверный выбор");
         }
     }
@@ -78,7 +86,7 @@ public class ConsoleUI {
         
         Product product = categories[categoryChoice - 1].createProduct(id, name, quantity);
         try {
-            warehouseService.addProduct(product, cellPosition);
+            commandExecutor.execute(new AddProductCommand(warehouseService, repository, product, cellPosition));
             System.out.println("Товар добавлен");
         } catch (WarehouseException e) {
             System.out.println("Ошибка: " + e.getMessage());
@@ -106,9 +114,22 @@ public class ConsoleUI {
             return;
         }
         try {
-            warehouseService.removeProduct(id, amount);
+            commandExecutor.execute(new RemoveProductCommand(warehouseService, repository, id, amount));
             System.out.println("Товар убран");
-        } catch (ProductNotFoundException | InsufficientQuantityException e) {
+        } catch (WarehouseException e) {
+            System.out.println("Ошибка: " + e.getMessage());
+        }
+    }
+
+    private void handleUndoLast() {
+        try {
+            boolean undone = commandExecutor.undoLast();
+            if (!undone) {
+                System.out.println("Нечего отменять");
+                return;
+            }
+            System.out.println("Последняя операция отменена");
+        } catch (WarehouseException e) {
             System.out.println("Ошибка: " + e.getMessage());
         }
     }
