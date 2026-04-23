@@ -13,10 +13,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class WarehouseAuditGodClass {
-
+    //Дубляж - уже есть в проекте
     private static final int NEIGHBORHOOD_RADIUS = 5;
-    private static final ProductCategory BAD_A = ProductCategory.FOOD;
-    private static final ProductCategory BAD_B = ProductCategory.CHEMICALS;
 
     private final CellRepository repository;
 
@@ -24,7 +22,7 @@ public class WarehouseAuditGodClass {
         this.repository = repository;
     }
 
-    public void runAuditAndPrintReport() {
+    public void runAudit() {
         List<StorageCell> cells = repository.findAllCells();
         System.out.println("\n=== AUDIT: склад ===");
 
@@ -45,7 +43,6 @@ public class WarehouseAuditGodClass {
 
         List<String> issues = new ArrayList<>();
 
-        // 1) базовые проверки полей
         for (StorageCell cell : cells) {
             if (cell == null) {
                 issues.add("Найден null StorageCell (данные повреждены)");
@@ -67,21 +64,6 @@ public class WarehouseAuditGodClass {
             }
         }
 
-        // 2) дубли ID (в вашей реализации репозитория почти невозможно, но аудит всё равно пытается)
-        Map<String, Set<Integer>> idToPositions = new HashMap<>();
-        for (StorageCell cell : cells) {
-            if (cell == null || cell.product() == null) continue;
-            String id = cell.product().getId();
-            if (id == null) continue;
-            idToPositions.computeIfAbsent(id, k -> new HashSet<>()).add(cell.position());
-        }
-        for (Map.Entry<String, Set<Integer>> e : idToPositions.entrySet()) {
-            if (e.getValue().size() > 1) {
-                issues.add("Дубликат ID '" + e.getKey() + "' в ячейках: " + e.getValue());
-            }
-        }
-
-        // 3) дырки между занятыми ячейками
         int minPos = Integer.MAX_VALUE;
         int maxPos = Integer.MIN_VALUE;
         Set<Integer> occupied = new HashSet<>();
@@ -101,7 +83,6 @@ public class WarehouseAuditGodClass {
             }
         }
 
-        // 4) товарное соседство (жёстко прошито правило FOOD рядом с CHEMICALS)
         Set<String> seenConflicts = new HashSet<>();
         for (StorageCell cell : cells) {
             if (cell == null || cell.product() == null) continue;
@@ -114,8 +95,8 @@ public class WarehouseAuditGodClass {
                 if (other == null) continue;
                 if (other.getId() != null && other.getId().equals(center.getId())) continue;
 
-                boolean isBadPair = (center.getCategory() == BAD_A && other.getCategory() == BAD_B)
-                        || (center.getCategory() == BAD_B && other.getCategory() == BAD_A);
+                boolean isBadPair = (center.getCategory() == ProductCategory.FOOD && other.getCategory() == ProductCategory.CHEMICALS)
+                        || (center.getCategory() == ProductCategory.CHEMICALS && other.getCategory() == ProductCategory.FOOD);
                 if (!isBadPair) continue;
 
                 String key = normalizePair(center.getId(), other.getId());
@@ -148,4 +129,3 @@ public class WarehouseAuditGodClass {
         return sa.compareTo(sb) <= 0 ? sa + "||" + sb : sb + "||" + sa;
     }
 }
-

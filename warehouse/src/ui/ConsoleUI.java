@@ -137,7 +137,7 @@ public class ConsoleUI {
     }
 
     private void handleAudit() {
-        new WarehouseAuditGodClass(repository).runAuditAndPrintReport();
+        new WarehouseAuditGodClass(repository).runAudit();
     }
 
     private void handleShowProducts() {
