@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="warehouse-reference" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="reference.ReferenceServiceMain" />
+    <module name="warehouse-reference" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
